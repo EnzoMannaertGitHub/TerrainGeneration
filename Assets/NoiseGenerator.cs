@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -23,19 +22,21 @@ public class NoiseGenerator : MonoBehaviour
     private int _width = 256;
     private int _height = 256;
 
+    #region EDITORPARAMETERS
     [Header("PERLIN NOISE PARAMETERS")]
     [SerializeField] private float _scale = 20f;
     [SerializeField] private float _offsetX = 100f;
     [SerializeField] private float _offsetY = 100f;
 
     [Header("DIAMOND SQUARE NOISE PARAMETERS")]
-    [SerializeField] private int _roughness = 84;
-
+    [SerializeField] private float _roughness = 84;
+    #endregion
+    #region DIAMONDSQUAREVARIABLES
     private float[,] _noiseMap = new float[257, 257];
     private float _r = 84;
     private int _step;
     private int _w = 257, _h = 257;
-
+    #endregion
     private void Start()
     {
         _offsetX = Random.Range(0f, 9999f);
@@ -45,11 +46,11 @@ public class NoiseGenerator : MonoBehaviour
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
     }
 
+    #region TERRAINFUNCTIONS
     public void RegenerateTerrain()
     {
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
     }
-
     TerrainData GenerateTerrain(TerrainData terrainData)
     {
         terrainData.heightmapResolution = _width + 1;
@@ -60,7 +61,6 @@ public class NoiseGenerator : MonoBehaviour
 
         return terrainData;
     }
-
     float[,] Generateheights()
     {
         if (_usedNoise == NoiseFunction.DIAMONDSQUARE)
@@ -85,6 +85,8 @@ public class NoiseGenerator : MonoBehaviour
 
         return heights;
     }
+    #endregion
+    #region PERLIN
     float PerlinNoise(int x, int y)
     {
         float xCoord = (float)x / _width * _scale + _offsetX;
@@ -92,8 +94,9 @@ public class NoiseGenerator : MonoBehaviour
 
         return Mathf.PerlinNoise(xCoord, yCoord);
     }
-
-    void DiamondSquare(int r)
+    #endregion
+    #region DIAMONDSQUARE
+    void DiamondSquare(float r)
     {
         //Fixed values => I got good results with these
         _noiseMap[0, 0] = 0.3981243f;
@@ -115,68 +118,91 @@ public class NoiseGenerator : MonoBehaviour
     }
     void squareStep(float[,] noiseMap, int stepsize)
     {
-        int x, y, hs = stepsize / 2;
-        float mid, a, b, c, d, n;
-        for (y = hs; y < _h; y = y + stepsize)
-            for (x = hs; x < _w; x = x + stepsize)
-            {
-                n = 4;
-                // Get values from the corners
-                a = noiseMap[x - hs,y - hs]; // top-left
-                b = noiseMap[x + hs,y - hs]; // top-right
-                c = noiseMap[x - hs,y + hs]; // bottom-left
-                d = noiseMap[x + hs,y + hs]; // bottom-right
+        float mid;
+        float topLeftValue;
+        float topRightValue;
+        float bottomLeftValue;
+        float bottomRightValue;
+        float nrOfCorners;
 
-                // Calculate the index of the central value
-                mid = (a + b + c + d) / n;
+        int halfStep = stepsize / 2;
+
+        for (int y  = halfStep; y < _h; y += stepsize)
+        {
+            for (int x = halfStep; x < _w; x += stepsize)
+            {
+                nrOfCorners = 4;
+
+                // Get values from the corners(SQUARE)
+                topLeftValue = noiseMap[x - halfStep, y - halfStep];
+                topRightValue = noiseMap[x + halfStep, y - halfStep];
+                bottomLeftValue = noiseMap[x - halfStep, y + halfStep];
+                bottomRightValue = noiseMap[x + halfStep, y + halfStep];
+
+                // Calculate the central value
+                mid = (topLeftValue + topRightValue + bottomLeftValue + bottomRightValue) / nrOfCorners;
 
                 // Add the offset
-                mid = mid + Random.Range(-_r, _r);
-                noiseMap[x,y] = mid;
+                mid += Random.Range(-_r, _r);
+                noiseMap[x, y] = mid;
             }
+        }
     }
-
     void diamondStep(float[,] noiseMap, int stepsize)
     {
-        int x, y, hs = stepsize / 2;
-        float centralPoint, a, b, c, d, n;
+        float mid;
+        float leftValue;
+        float rightValue;
+        float bottomValue;
+        float topValue;
+        float nrOfCorners;
+
+        int halfStep = stepsize / 2;
 
         // x-offset   
-        for (y = 0; y < _h; y = y + stepsize)
-            for (x = hs; x < _w; x = x + stepsize)
+        for (int y = 0; y < _h; y += stepsize)
+        {
+            for (int x = halfStep; x < _w; x += stepsize)
             {
-                n = 4;
-                // Get values from the corners
-                if (x - hs >= 0) a = noiseMap[x - hs,y]; else { a = 0; n = n - 1; }
-                if (x + hs < _w) b = noiseMap[x + hs,y]; else { b = 0; n = n - 1; }
-                if (y - hs >= 0) c = noiseMap[x,y - hs]; else { c = 0; n = n - 1; }
-                if (y + hs < _h) d = noiseMap[x,y + hs]; else { d = 0; n = n - 1; }
+                nrOfCorners = 4;
+
+                // Get values from the corners(DIAMOND)
+                //if out of bounds remove one corner and set value to 0
+                if (x - halfStep >= 0) leftValue = noiseMap[x - halfStep, y]; else { leftValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (x + halfStep < _w) rightValue = noiseMap[x + halfStep, y]; else { rightValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (y - halfStep >= 0) bottomValue = noiseMap[x, y - halfStep]; else { bottomValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (y + halfStep < _h) topValue = noiseMap[x, y + halfStep]; else { topValue = 0; nrOfCorners = nrOfCorners - 1; }
 
                 // Calculate the index of the central value
-                centralPoint = (a + b + c + d) / n;
+                mid = (leftValue + rightValue + bottomValue + topValue) / nrOfCorners;
 
                 // Add the offset
-                centralPoint = centralPoint + Random.Range(-_r, _r);
-                noiseMap[x, y] = centralPoint;
+                mid += Random.Range(-_r, _r);
+                noiseMap[x, y] = mid;
             }
-
+        }
         // y-offset   
-        for (y = hs; y < _h; y = y + stepsize)
-            for (x = 0; x < _w; x = x + stepsize)
+        for (int y = halfStep; y < _h; y += stepsize)
+        {
+            for (int x = 0; x < _w; x += stepsize)
             {
-                n = 4;
+                nrOfCorners = 4;
+
                 // Get values from the corners
-                if (x - hs >= 0) a = noiseMap[x - hs, y]; else { a = 0; n = n - 1; }
-                if (x + hs < _w) b = noiseMap[x + hs,y]; else { b = 0; n = n - 1; }
-                if (y - hs >= 0) c = noiseMap[x,y - hs]; else { c = 0; n = n - 1; }
-                if (y + hs < _h) d = noiseMap[x,y + hs]; else { d = 0; n = n - 1; }
+                //if out of bounds remove one corner and set value to 0
+                if (x - halfStep >= 0) leftValue = noiseMap[x - halfStep, y]; else { leftValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (x + halfStep < _w) rightValue = noiseMap[x + halfStep, y]; else { rightValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (y - halfStep >= 0) bottomValue = noiseMap[x, y - halfStep]; else { bottomValue = 0; nrOfCorners = nrOfCorners - 1; }
+                if (y + halfStep < _h) topValue = noiseMap[x, y + halfStep]; else { topValue = 0; nrOfCorners = nrOfCorners - 1; }
 
                 // Calculate the index of the central value
-                centralPoint = (a + b + c + d) / n;
+                mid = (leftValue + rightValue + bottomValue + topValue) / nrOfCorners;
 
                 // Add the offset
-                centralPoint = centralPoint + Random.Range(-_r, _r);
-                noiseMap[x,y] = centralPoint;
+                mid += Random.Range(-_r, _r);
+                noiseMap[x, y] = mid;
             }
+        }
     }
+    #endregion
 }
