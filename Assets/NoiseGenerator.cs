@@ -19,6 +19,8 @@ public class NoiseGenerator : MonoBehaviour
     }
 
     private Terrain _landscape = new Terrain(); 
+    public Terrain Landscape { set { _landscape = value; } get { return _landscape; } }
+
     private int _width = 256;
     private int _height = 256;
 
@@ -45,7 +47,6 @@ public class NoiseGenerator : MonoBehaviour
         _landscape = GetComponent<Terrain>();
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
     }
-
     #region TERRAINFUNCTIONS
     public void RegenerateTerrain()
     {
@@ -84,6 +85,11 @@ public class NoiseGenerator : MonoBehaviour
         }
 
         return heights;
+    }
+
+    public float[,] GetHeightValues()
+    {
+        return _landscape.terrainData.GetHeights(0, 0, _width, _height);
     }
     #endregion
     #region PERLIN
