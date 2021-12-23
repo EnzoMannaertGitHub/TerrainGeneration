@@ -178,10 +178,11 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = _waterMap[j, i] / heightsInvolved.Count;
-                            _waterMap[j, i] -= _waterMap[j, i] / heightsInvolved.Count;
+                            deltaWater = heights[j,i] - deltaHeight;
+                            _waterMap[j, i] -= deltaWater;
                             _waterMap[j - leftneighborIndex, i] += deltaWater;
                         }
+
                         float deltaSediment = _sedimentMap[j, i] * (deltaWater);
                         _sedimentMap[j - leftneighborIndex, i] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
@@ -198,9 +199,9 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = _waterMap[j, i] / heightsInvolved.Count;
-                            _waterMap[j, i] -= _waterMap[j, i] / heightsInvolved.Count;
-                            _waterMap[j + rightneighborIndex, i] += deltaWater;
+                            deltaWater = heights[j, i] - deltaHeight;
+                            _waterMap[j, i] -= deltaWater;
+                            _waterMap[j + leftneighborIndex, i] += deltaWater;
                         }
 
                         float deltaSediment = _sedimentMap[j, i] * (deltaWater);
@@ -219,8 +220,8 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = _waterMap[j, i] / heightsInvolved.Count;
-                            _waterMap[j, i] -= _waterMap[j, i] / heightsInvolved.Count;
+                            deltaWater = heights[j, i] - deltaHeight;
+                            _waterMap[j, i] -= deltaWater;
                             _waterMap[j, i + upneighborIndex] += deltaWater;
                         }
                         float deltaSediment = _sedimentMap[j, i] * (deltaWater);
@@ -239,8 +240,8 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = _waterMap[j, i] / heightsInvolved.Count;
-                            _waterMap[j, i] -= _waterMap[j, i] / heightsInvolved.Count;
+                            deltaWater = heights[j, i] - deltaHeight;
+                            _waterMap[j, i] -= deltaWater;
                             _waterMap[j, i - bottomneighborIndex] += deltaWater;
                         }
 
@@ -248,22 +249,16 @@ public class Erosionenerator : MonoBehaviour
                         _sedimentMap[j, i - bottomneighborIndex] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
                     }
-                }
-            }
 
-            //step 4, percentage of water evaporates
-            float evaporationCoefficient = .5f;
-            float capacityCoefficient = .01f;
-            for (int i = 0; i < _height; i++)
-            {
-                for (int j = 0; j < _width; j++)
-                {
-                    _waterMap[j, i] = _waterMap[j, i] * (1 - evaporationCoefficient);
-                    float sedimentMax = capacityCoefficient * _waterMap[j, i];
+                    //float evaporationCoefficient = .5f;
+                    //float capacityCoefficient = .01f;
 
-                    float deltaSediment = Mathf.Max(0, _sedimentMap[j, i] - sedimentMax);
-                    _sedimentMap[j, i] -= deltaSediment;
-                    heights[j, i] += deltaSediment;
+                    //_waterMap[j, i] *= (1 - evaporationCoefficient);
+                    //float sedimentMax = capacityCoefficient * _waterMap[j, i];
+
+                    //float deltaSedimentCurrentCell = Mathf.Max(0, _sedimentMap[j, i] - sedimentMax);
+                    //_sedimentMap[j, i] -= deltaSedimentCurrentCell;
+                    //heights[j, i] += deltaSedimentCurrentCell;
                 }
             }
         }
