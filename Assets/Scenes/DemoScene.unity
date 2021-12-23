@@ -362,7 +362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0350e439204a3142968658a52c7f0a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _iterations: 100
+  _iterations: 1
   _t: 0.025
   _noiseGenerator: {fileID: 75473788}
 --- !u!1 &256257899
