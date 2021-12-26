@@ -1,9 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Diagnostics;
 
 public class Erosionenerator : MonoBehaviour
 {
-    [SerializeField] private int _iterations = 100;
+    private Stopwatch _s = new Stopwatch();
+
+    [SerializeField] private int _iterationsThermal = 100;
+    [SerializeField] private int _iterationsHydraulic = 15;
     [SerializeField] private float _t = .025f;
     [SerializeField] private NoiseGenerator _noiseGenerator;
 
@@ -12,11 +17,11 @@ public class Erosionenerator : MonoBehaviour
 
     private float[,] _waterMap = new float[256, 256];
     private float[,] _sedimentMap = new float[256, 256];
-    public void ThermalErosion()
+    private void ThermalErosion()
     {
         float[,] heights = _noiseGenerator.GetHeightValues();
         float[,] tempHeights = heights;
-        for (int n = 0; n < _iterations; n++)
+        for (int n = 0; n < _iterationsThermal; n++)
         {
             //Distribute to lowest neighbor
             //Using a Von Neuman neighborhood
@@ -87,28 +92,22 @@ public class Erosionenerator : MonoBehaviour
         }
         _noiseGenerator.Landscape.terrainData.SetHeights(0, 0, heights);
     }
-    public void HydraulicErosion()
+    private void HydraulicErosion()
     {
         float[,] heights = _noiseGenerator.GetHeightValues();
 
-        for (int n = 0; n < _iterations; n++)
+        for (int n = 0; n < _iterationsHydraulic; n++)
         {
-            //Step 1, simulate rain
             const float water = 0.01f;
-            for (int i = 0; i < _height; i++)
-            {
-                for (int j = 0; j < _width; j++)
-                {
-                    _waterMap[j, i] += water;
-                }
-            }
-
-            //step 2, proportion of height is converted into sediment
             const float solubility = 0.01f;
             for (int i = 0; i < _height; i++)
             {
                 for (int j = 0; j < _width; j++)
                 {
+                    //Step 1, simulate rain
+                    _waterMap[j, i] += water;
+
+                    //step 2, proportion of height is converted into sediment
                     heights[j, i] -= solubility * _waterMap[j, i];
                     _sedimentMap[j, i] += solubility * _waterMap[j, i];
                 }
@@ -134,29 +133,11 @@ public class Erosionenerator : MonoBehaviour
                     float dTotal = 0;
 
                     float heightLeftNeighbor = heights[j - leftneighborIndex, i];
-                    if (heightLeftNeighbor < currentHeight)
-                    {
-                        heightsInvolved.Add(heightLeftNeighbor);
-                        dTotal += heights[j, i] - heightLeftNeighbor;
-                    }
                     float heightRighttNeighbor = heights[j + rightneighborIndex, i];
-                    if (heightRighttNeighbor < currentHeight)
-                    {
-                        heightsInvolved.Add(heightRighttNeighbor);
-                        dTotal += heights[j, i] - heightRighttNeighbor;
-                    }
                     float heightUpNeighbor = heights[j, i + upneighborIndex];
-                    if (heightUpNeighbor < currentHeight)
-                    {
-                        heightsInvolved.Add(heightUpNeighbor);
-                        dTotal += heights[j, i] - heightUpNeighbor;
-                    }
                     float heightDownNeighbor = heights[j, i - bottomneighborIndex];
-                    if (heightDownNeighbor < currentHeight)
-                    {
-                        heightsInvolved.Add(heightDownNeighbor);
-                        dTotal += heights[j, i] - heightDownNeighbor;
-                    }
+                    GetHeightsInvolved(currentHeight, heightLeftNeighbor, heightRighttNeighbor, heightUpNeighbor, heightDownNeighbor,
+                                       ref heightsInvolved,ref dTotal);
 
                     float sum = 0;
                     foreach (float h in heightsInvolved)
@@ -171,19 +152,27 @@ public class Erosionenerator : MonoBehaviour
                         deltaWater += Mathf.Min(_waterMap[j, i], deltaHeight) * ((heights[j, i] - heights[j - leftneighborIndex, i]) / dTotal);
                         if (deltaWater > _waterMap[j, i])
                         {
-                            float w = _waterMap[j, i];
+                            float w = _waterMap[j, i] / heightsInvolved.Count;
                             _waterMap[j, i] -= w;
                             _waterMap[j - leftneighborIndex, i] += w;
-
                         }
                         else
                         {
-                            deltaWater = heights[j,i] - deltaHeight;
-                            _waterMap[j, i] -= deltaWater;
-                            _waterMap[j - leftneighborIndex, i] += deltaWater;
+                            if ((heights[j, i] - deltaHeight) > 0)
+                            {
+                                deltaWater = heights[j, i] - deltaHeight;
+                                _waterMap[j, i] -= deltaWater;
+                                _waterMap[j - leftneighborIndex, i] += deltaWater;
+                            }
+                            else
+                            {
+                                float w = _waterMap[j, i] / heightsInvolved.Count;
+                                _waterMap[j, i] -= w;
+                                _waterMap[j - leftneighborIndex, i] += w;
+                            }
                         }
 
-                        float deltaSediment = _sedimentMap[j, i] * (deltaWater);
+                        float deltaSediment = _sedimentMap[j, i] * (deltaWater / _waterMap[j, i]);
                         _sedimentMap[j - leftneighborIndex, i] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
                     }
@@ -199,12 +188,21 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = heights[j, i] - deltaHeight;
-                            _waterMap[j, i] -= deltaWater;
-                            _waterMap[j + leftneighborIndex, i] += deltaWater;
+                            if ((heights[j, i] - deltaHeight) > 0)
+                            {
+                                deltaWater = heights[j, i] - deltaHeight;
+                                _waterMap[j, i] -= deltaWater;
+                                _waterMap[j - leftneighborIndex, i] += deltaWater;
+                            }
+                            else
+                            {
+                                float w = _waterMap[j, i] / heightsInvolved.Count;
+                                _waterMap[j, i] -= w;
+                                _waterMap[j - leftneighborIndex, i] += w;
+                            }
                         }
 
-                        float deltaSediment = _sedimentMap[j, i] * (deltaWater);
+                        float deltaSediment = _sedimentMap[j, i] * (deltaWater / _waterMap[j, i]);
                         _sedimentMap[j + rightneighborIndex, i] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
                     }
@@ -220,11 +218,20 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = heights[j, i] - deltaHeight;
-                            _waterMap[j, i] -= deltaWater;
-                            _waterMap[j, i + upneighborIndex] += deltaWater;
+                            if ((heights[j, i] - deltaHeight) > 0)
+                            {
+                                deltaWater = heights[j, i] - deltaHeight;
+                                _waterMap[j, i] -= deltaWater;
+                                _waterMap[j - leftneighborIndex, i] += deltaWater;
+                            }
+                            else
+                            {
+                                float w = _waterMap[j, i] / heightsInvolved.Count;
+                                _waterMap[j, i] -= w;
+                                _waterMap[j - leftneighborIndex, i] += w;
+                            }
                         }
-                        float deltaSediment = _sedimentMap[j, i] * (deltaWater);
+                        float deltaSediment = _sedimentMap[j, i] * (deltaWater / _waterMap[j, i]);
                         _sedimentMap[j, i + upneighborIndex] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
                     }
@@ -240,28 +247,93 @@ public class Erosionenerator : MonoBehaviour
                         }
                         else
                         {
-                            deltaWater = heights[j, i] - deltaHeight;
-                            _waterMap[j, i] -= deltaWater;
-                            _waterMap[j, i - bottomneighborIndex] += deltaWater;
+                            if ((heights[j, i] - deltaHeight) > 0)
+                            {
+                                deltaWater = heights[j, i] - deltaHeight;
+                                _waterMap[j, i] -= deltaWater;
+                                _waterMap[j - leftneighborIndex, i] += deltaWater;
+                            }
+                            else
+                            {
+                                float w = _waterMap[j, i] / heightsInvolved.Count;
+                                _waterMap[j, i] -= w;
+                                _waterMap[j - leftneighborIndex, i] += w;
+                            }
                         }
 
-                        float deltaSediment = _sedimentMap[j, i] * (deltaWater);
+                        float deltaSediment = _sedimentMap[j, i] * (deltaWater / _waterMap[j, i]);
                         _sedimentMap[j, i - bottomneighborIndex] += deltaSediment;
                         _sedimentMap[j, i] -= deltaSediment;
                     }
-
-                    //float evaporationCoefficient = .5f;
-                    //float capacityCoefficient = .01f;
-
-                    //_waterMap[j, i] *= (1 - evaporationCoefficient);
-                    //float sedimentMax = capacityCoefficient * _waterMap[j, i];
-
-                    //float deltaSedimentCurrentCell = Mathf.Max(0, _sedimentMap[j, i] - sedimentMax);
-                    //_sedimentMap[j, i] -= deltaSedimentCurrentCell;
-                    //heights[j, i] += deltaSedimentCurrentCell;
                 }
             }
         }
         _noiseGenerator.Landscape.terrainData.SetHeights(0, 0, heights);
+    }
+    public void ExecuteThermalErosion()
+    {
+
+            _s.Start();
+            ThermalErosion();
+            _s.Stop();
+
+        PrintTime();
+    }
+    public void ExecuteHudraulicErosion()
+    {
+
+            _s.Start();
+            HydraulicErosion();
+            _s.Stop();
+
+         PrintTime();
+    }
+    public void AllErosion()
+    {
+             _s.Start();
+             ThermalErosion();
+             HydraulicErosion();
+            _s.Stop();
+
+        PrintTime();
+    }
+    void GetHeightsInvolved(float currentHeight, float heightLeftNeighbor, float heightRighttNeighbor, float heightUpNeighbor,
+                            float heightDownNeighbor, ref List<float> heightsInvolved, ref float dTotal)
+    {
+        if (heightLeftNeighbor < currentHeight)
+        {
+            heightsInvolved.Add(heightLeftNeighbor);
+            dTotal += currentHeight - heightLeftNeighbor;
+        }
+        if (heightRighttNeighbor < currentHeight)
+        {
+            heightsInvolved.Add(heightRighttNeighbor);
+            dTotal += currentHeight - heightRighttNeighbor;
+        }
+        if (heightUpNeighbor < currentHeight)
+        {
+            heightsInvolved.Add(heightUpNeighbor);
+            dTotal += currentHeight - heightUpNeighbor;
+        }
+        if (heightDownNeighbor < currentHeight)
+        {
+            heightsInvolved.Add(heightDownNeighbor);
+            dTotal += currentHeight - heightDownNeighbor;
+        }
+    }
+    void PrintTime()
+    {
+        TimeSpan ts = _s.Elapsed;
+        string elapsedTime = String.Format("{0:00}:{1:00}",
+            ts.Seconds,
+            ts.Milliseconds);
+        UnityEngine.Debug.Log($"It took " + elapsedTime);
+        _s.Reset();
+    }
+
+    public void ResetMaps()
+    {
+        _waterMap = new float[256, 256];
+        _sedimentMap = new float[256, 256];
     }
 }

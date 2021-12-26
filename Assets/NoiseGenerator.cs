@@ -1,9 +1,13 @@
 using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 public class NoiseGenerator : MonoBehaviour
 {
+    Erosionenerator _ErosionGenerator = null;
+    private Stopwatch _s = new Stopwatch();
     public enum NoiseFunction
     {
         PERLIN = 0,
@@ -15,6 +19,8 @@ public class NoiseGenerator : MonoBehaviour
         set {
             _usedNoise = value;
             _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
+            PrintTime();
+            _ErosionGenerator.ResetMaps();
             }
     }
 
@@ -41,24 +47,33 @@ public class NoiseGenerator : MonoBehaviour
     #endregion
     private void Start()
     {
+        _ErosionGenerator = GetComponent<Erosionenerator>();
         _offsetX = Random.Range(0f, 9999f);
         _offsetY = Random.Range(0f, 9999f);
 
         _landscape = GetComponent<Terrain>();
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
+        PrintTime();
     }
     #region TERRAINFUNCTIONS
     public void RegenerateTerrain()
     {
+        _offsetX = Random.Range(0f, 9999f);
+        _offsetY = Random.Range(0f, 9999f);
+
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
+        PrintTime();
+        _ErosionGenerator.ResetMaps();
     }
     TerrainData GenerateTerrain(TerrainData terrainData)
     {
+        _s.Start();
         terrainData.heightmapResolution = _width + 1;
 
         terrainData.size = new Vector3(_width, 20, _height);
 
         terrainData.SetHeights(0, 0, Generateheights());
+        _s.Stop();
 
         return terrainData;
     }
@@ -86,7 +101,6 @@ public class NoiseGenerator : MonoBehaviour
 
         return heights;
     }
-
     public float[,] GetHeightValues()
     {
         return _landscape.terrainData.GetHeights(0, 0, _width, _height);
@@ -211,4 +225,14 @@ public class NoiseGenerator : MonoBehaviour
         }
     }
     #endregion
+
+    void PrintTime()
+    {
+        TimeSpan ts = _s.Elapsed;
+        string elapsedTime = String.Format("{0:00}:{1:00}",
+            ts.Seconds,
+            ts.Milliseconds);
+        UnityEngine.Debug.Log($"It took " + elapsedTime);
+        _s.Reset();
+    }
 }
