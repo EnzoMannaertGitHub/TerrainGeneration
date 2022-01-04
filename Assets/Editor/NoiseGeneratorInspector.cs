@@ -46,6 +46,10 @@ public class NoiseGeneratorInspector : Editor
             if (GUILayout.Button("Regenerate terrain"))
                 generator.RegenerateTerrain();
         }
+        generator._width = EditorGUILayout.IntSlider("Width", generator._width,0, 512);
+        generator._height = EditorGUILayout.IntSlider("Height", generator._height, 0, 512);
+        EditorGUILayout.LabelField("Only 256x256 and 512x512 are supported");
+
         if (EditorGUI.EndChangeCheck())
             generator.RegenerateTerrain();
 

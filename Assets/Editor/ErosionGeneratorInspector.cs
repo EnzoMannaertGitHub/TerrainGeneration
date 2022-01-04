@@ -16,12 +16,12 @@ public class ErosionGeneratorInspector : Editor
         EditorGUILayout.LabelField("Number of iterations", style);
 
         EditorGUI.BeginChangeCheck();
-        generator._iterationsThermal = EditorGUILayout.IntSlider("Thermal", generator._iterationsThermal, 0, 200);
+        generator._iterationsThermal = EditorGUILayout.IntSlider("Thermal iterations", generator._iterationsThermal, 0, 200);
         if (EditorGUI.EndChangeCheck())
             generator.ExecuteThermalErosion();
 
         EditorGUI.BeginChangeCheck();
-        generator._iterationsHydraulic = EditorGUILayout.IntSlider("Hydraulic", generator._iterationsHydraulic, 0, 25);
+        generator._iterationsHydraulic = EditorGUILayout.IntSlider("Hydraulic iterations", generator._iterationsHydraulic, 0, 25);
         if (EditorGUI.EndChangeCheck())
             generator.ExecuteHudraulicErosion();
 

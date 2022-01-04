@@ -20,6 +20,8 @@ public class ErosionGenerator : MonoBehaviour
 
     private float[,] _waterMap = new float[256, 256];
     private float[,] _sedimentMap = new float[256, 256];
+    List<float> heightsInvolved = new List<float>();
+
     private void ThermalErosion()
     {
         if (_landscape == null)
@@ -90,6 +92,7 @@ public class ErosionGenerator : MonoBehaviour
     }
     private void HydraulicErosion()
     {
+
         if (_landscape == null)
             _landscape = GetComponent<Terrain>();
 
@@ -129,15 +132,14 @@ public class ErosionGenerator : MonoBehaviour
                     if (j == _width - 1) rightneighborIndex = 0;
 
                     float currentHeight = heights[j, i];
-                    List<float> heightsInvolved = new List<float>();
                     float dTotal = 0;
 
                     float heightLeftNeighbor = heights[j - leftneighborIndex, i];
                     float heightRighttNeighbor = heights[j + rightneighborIndex, i];
                     float heightUpNeighbor = heights[j, i + upneighborIndex];
                     float heightDownNeighbor = heights[j, i - bottomneighborIndex];
-                    GetHeightsInvolved(currentHeight, heightLeftNeighbor, heightRighttNeighbor, heightUpNeighbor, heightDownNeighbor,
-                                       ref heightsInvolved,ref dTotal);
+                    GetHeightsInvolved(currentHeight, heightLeftNeighbor, heightRighttNeighbor, heightUpNeighbor, heightDownNeighbor
+                                       ,ref dTotal);
 
                     float sum = 0;
                     foreach (float h in heightsInvolved)
@@ -276,6 +278,9 @@ public class ErosionGenerator : MonoBehaviour
             _noiseGenerator = GetComponent<NoiseGenerator>();
        _noiseGenerator.RegenerateTerrain();
 
+        _width = _noiseGenerator._width;
+        _height = _noiseGenerator._height;
+
         _s.Start();
         ThermalErosion();
         _s.Stop();
@@ -288,6 +293,11 @@ public class ErosionGenerator : MonoBehaviour
             _noiseGenerator = GetComponent<NoiseGenerator>();
 
         _noiseGenerator.RegenerateTerrain();
+
+        _width = _noiseGenerator._width;
+        _height = _noiseGenerator._height;
+        _waterMap = new float[_width, _height];
+        _sedimentMap = new float[_width, _height];
 
         _s.Start();
             HydraulicErosion();
@@ -302,6 +312,11 @@ public class ErosionGenerator : MonoBehaviour
 
         _noiseGenerator.RegenerateTerrain();
 
+        _width = _noiseGenerator._width;
+        _height = _noiseGenerator._height;
+        _waterMap = new float[_width, _height];
+        _sedimentMap = new float[_width, _height];
+
         _s.Start();
              ThermalErosion();
              HydraulicErosion();
@@ -310,8 +325,10 @@ public class ErosionGenerator : MonoBehaviour
         PrintTime();
     }
     void GetHeightsInvolved(float currentHeight, float heightLeftNeighbor, float heightRighttNeighbor, float heightUpNeighbor,
-                            float heightDownNeighbor, ref List<float> heightsInvolved, ref float dTotal)
+                            float heightDownNeighbor, ref float dTotal)
     {
+        heightsInvolved.Clear();
+
         if (heightLeftNeighbor < currentHeight)
         {
             heightsInvolved.Add(heightLeftNeighbor);
@@ -348,7 +365,7 @@ public class ErosionGenerator : MonoBehaviour
 
     public void ResetMaps()
     {
-        _waterMap = new float[256, 256];
-        _sedimentMap = new float[256, 256];
+        _waterMap = new float[_width, _height];
+        _sedimentMap = new float[_width, _height];
     }
 }

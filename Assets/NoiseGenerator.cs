@@ -24,8 +24,8 @@ public class NoiseGenerator : MonoBehaviour
     private Terrain _landscape = new Terrain(); 
     public Terrain Landscape { set { _landscape = value; } get { return _landscape; } }
 
-    private int _width = 256;
-    private int _height = 256;
+    public int _width;
+    public int _height;
     public bool _showTime = false;
 
     #region EDITORPARAMETERS
@@ -50,7 +50,6 @@ public class NoiseGenerator : MonoBehaviour
     private void Start()
     {
         _landscape = GetComponent<Terrain>();
-        _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
         PrintTime();
     }
     #region TERRAINFUNCTIONS
@@ -66,7 +65,7 @@ public class NoiseGenerator : MonoBehaviour
     {
         _s.Start();
         terrainData.heightmapResolution = _width + 1;
-
+        
         terrainData.size = new Vector3(_width, 20, _height);
 
         terrainData.SetHeights(0, 0, Generateheights());
