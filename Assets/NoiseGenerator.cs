@@ -32,12 +32,16 @@ public class NoiseGenerator : MonoBehaviour
 
     #region EDITORPARAMETERS
     [Header("PERLIN NOISE PARAMETERS")]
-    [SerializeField] private float _scale = 20f;
-    [SerializeField] private float _offsetX = 100f;
-    [SerializeField] private float _offsetY = 100f;
+    [SerializeField] public float _scale = 20f;
+    [SerializeField] public float _offsetX = 100f;
+    [SerializeField] public float _offsetY = 100f;
 
     [Header("DIAMOND SQUARE NOISE PARAMETERS")]
-    [SerializeField] private float _roughness = 84;
+    [SerializeField] public float _roughness = 84;
+    [SerializeField] public float _topRightValue = 0.147603f;
+    [SerializeField] public float _topLeftValue = 0.3303762f;
+    [SerializeField] public float _bottomRightValue = 0.006591558f;
+    [SerializeField] public float _bottomLeftValue = 0.3981243f;
     #endregion
     #region DIAMONDSQUAREVARIABLES
     private float[,] _noiseMap = new float[257, 257];
@@ -48,9 +52,6 @@ public class NoiseGenerator : MonoBehaviour
     private void Start()
     {
         _ErosionGenerator = GetComponent<Erosionenerator>();
-        _offsetX = Random.Range(0f, 9999f);
-        _offsetY = Random.Range(0f, 9999f);
-
         _landscape = GetComponent<Terrain>();
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
         PrintTime();
@@ -58,8 +59,10 @@ public class NoiseGenerator : MonoBehaviour
     #region TERRAINFUNCTIONS
     public void RegenerateTerrain()
     {
-        _offsetX = Random.Range(0f, 9999f);
-        _offsetY = Random.Range(0f, 9999f);
+        if (_landscape == null)
+            _landscape = GetComponent<Terrain>();
+        if(_ErosionGenerator == null)
+            _ErosionGenerator = GetComponent<Erosionenerator>();
 
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
         PrintTime();
@@ -119,10 +122,10 @@ public class NoiseGenerator : MonoBehaviour
     void DiamondSquare(float r)
     {
         //Fixed values => I got good results with these
-        _noiseMap[0, 0] = 0.3981243f;
-        _noiseMap[0, _h - 1] = 0.3303762f;
-        _noiseMap[_w - 1,0] = 0.006591558f;
-        _noiseMap[_w - 1,_h - 1] = 0.147603f;
+        _noiseMap[0, 0] = _bottomLeftValue;
+        _noiseMap[0, _h - 1] = _topLeftValue;
+        _noiseMap[_w - 1, 0] = _bottomRightValue;
+        _noiseMap[_w - 1,_h - 1] = _topRightValue;
 
         _r = r;
         _step = _width;
