@@ -26,7 +26,7 @@ public class NoiseGenerator : MonoBehaviour
 
     public int _width;
     public int _height;
-    public bool _showTime = false;
+    public bool _showTime = true;
 
     #region EDITORPARAMETERS
     [Header("PERLIN NOISE PARAMETERS")]

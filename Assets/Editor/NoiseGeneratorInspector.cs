@@ -53,7 +53,7 @@ public class NoiseGeneratorInspector : Editor
         if (EditorGUI.EndChangeCheck())
             generator.RegenerateTerrain();
 
-        EditorGUILayout.Toggle("Print execution time", generator._showTime);
+        generator._showTime = EditorGUILayout.Toggle("Print execution time", generator._showTime);
 
     }
 }

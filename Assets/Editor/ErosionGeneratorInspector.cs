@@ -21,13 +21,13 @@ public class ErosionGeneratorInspector : Editor
             generator.ExecuteThermalErosion();
 
         EditorGUI.BeginChangeCheck();
-        generator._iterationsHydraulic = EditorGUILayout.IntSlider("Hydraulic iterations", generator._iterationsHydraulic, 0, 25);
+        generator._iterationsHydraulic = EditorGUILayout.IntSlider("Hydraulic iterations", generator._iterationsHydraulic, 0, 250);
         if (EditorGUI.EndChangeCheck())
             generator.ExecuteHudraulicErosion();
 
         if (GUILayout.Button("Regenerate Erosion"))
             generator.ExecuteAllErosion();
 
-        EditorGUILayout.Toggle("Print execution time", generator._showTime);
+        generator._showTime = EditorGUILayout.Toggle("Print execution time", generator._showTime);
     }
 }

@@ -10,7 +10,7 @@ public class ErosionGenerator : MonoBehaviour
     public int _iterationsThermal = 100;
     public int _iterationsHydraulic = 15;
     public float _t = .025f;
-    public bool _showTime = false;
+    public bool _showTime = true;
 
     private NoiseGenerator _noiseGenerator;
     private Terrain _landscape = new Terrain();
@@ -300,8 +300,8 @@ public class ErosionGenerator : MonoBehaviour
         _sedimentMap = new float[_width, _height];
 
         _s.Start();
-            HydraulicErosion();
-            _s.Stop();
+        HydraulicErosion();
+        _s.Stop();
 
          PrintTime();
     }
