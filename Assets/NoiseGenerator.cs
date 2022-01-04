@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
-using Random = UnityEngine.Random;
 using System.Diagnostics;
-using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class NoiseGenerator : MonoBehaviour
 {
-    Erosionenerator _ErosionGenerator = null;
     private Stopwatch _s = new Stopwatch();
     public enum NoiseFunction
     {
@@ -20,7 +18,6 @@ public class NoiseGenerator : MonoBehaviour
             _usedNoise = value;
             _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
             PrintTime();
-            _ErosionGenerator.ResetMaps();
             }
     }
 
@@ -29,19 +26,20 @@ public class NoiseGenerator : MonoBehaviour
 
     private int _width = 256;
     private int _height = 256;
+    public bool _showTime = false;
 
     #region EDITORPARAMETERS
     [Header("PERLIN NOISE PARAMETERS")]
-    [SerializeField] public float _scale = 20f;
-    [SerializeField] public float _offsetX = 100f;
-    [SerializeField] public float _offsetY = 100f;
+    public float _scale = 20f;
+    public float _offsetX = 100f;
+    public float _offsetY = 100f;
 
     [Header("DIAMOND SQUARE NOISE PARAMETERS")]
-    [SerializeField] public float _roughness = 84;
-    [SerializeField] public float _topRightValue = 0.147603f;
-    [SerializeField] public float _topLeftValue = 0.3303762f;
-    [SerializeField] public float _bottomRightValue = 0.006591558f;
-    [SerializeField] public float _bottomLeftValue = 0.3981243f;
+    public float _roughness = 84;
+    public float _topRightValue = 0.147603f;
+    public float _topLeftValue = 0.3303762f;
+    public float _bottomRightValue = 0.006591558f;
+    public float _bottomLeftValue = 0.3981243f;
     #endregion
     #region DIAMONDSQUAREVARIABLES
     private float[,] _noiseMap = new float[257, 257];
@@ -51,7 +49,6 @@ public class NoiseGenerator : MonoBehaviour
     #endregion
     private void Start()
     {
-        _ErosionGenerator = GetComponent<Erosionenerator>();
         _landscape = GetComponent<Terrain>();
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
         PrintTime();
@@ -61,12 +58,9 @@ public class NoiseGenerator : MonoBehaviour
     {
         if (_landscape == null)
             _landscape = GetComponent<Terrain>();
-        if(_ErosionGenerator == null)
-            _ErosionGenerator = GetComponent<Erosionenerator>();
 
         _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
         PrintTime();
-        _ErosionGenerator.ResetMaps();
     }
     TerrainData GenerateTerrain(TerrainData terrainData)
     {
@@ -231,6 +225,9 @@ public class NoiseGenerator : MonoBehaviour
 
     void PrintTime()
     {
+        if (!_showTime)
+            return;
+
         TimeSpan ts = _s.Elapsed;
         string elapsedTime = String.Format("{0:00}:{1:00}",
             ts.Seconds,

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Diagnostics;
 
-public class Erosionenerator : MonoBehaviour
+public class ErosionGenerator : MonoBehaviour
 {
     private Stopwatch _s = new Stopwatch();
 
-    [SerializeField] private int _iterationsThermal = 100;
-    [SerializeField] private int _iterationsHydraulic = 15;
-    [SerializeField] private float _t = .025f;
-    [SerializeField] private NoiseGenerator _noiseGenerator;
+    public int _iterationsThermal = 100;
+    public int _iterationsHydraulic = 15;
+    public float _t = .025f;
+    public bool _showTime = false;
+
+    private NoiseGenerator _noiseGenerator;
+    private Terrain _landscape = new Terrain();
 
     private int _width = 256;
     private int _height = 256;
@@ -19,7 +22,10 @@ public class Erosionenerator : MonoBehaviour
     private float[,] _sedimentMap = new float[256, 256];
     private void ThermalErosion()
     {
-        float[,] heights = _noiseGenerator.GetHeightValues();
+        if (_landscape == null)
+            _landscape = GetComponent<Terrain>();
+
+        float[,] heights = _landscape.terrainData.GetHeights(0, 0, _width, _height);
         float[,] tempHeights = heights;
         for (int n = 0; n < _iterationsThermal; n++)
         {
@@ -31,7 +37,6 @@ public class Erosionenerator : MonoBehaviour
                 {
                     float currentHeight = heights[j, i];
                     Vector2 lowestIndex = new Vector2(-1, -1);
-                    float biggestHeightDifference = 0;
 
                     //Get height difference with all neighbors (4)
                     float leftHeightDiff = 0;
@@ -50,10 +55,7 @@ public class Erosionenerator : MonoBehaviour
                     {
                         rightHeightDiff = currentHeight - heights[j + 1, i]; //right
                         if (rightHeightDiff > _t && rightHeightDiff > leftHeightDiff)
-                        {
                             lowestIndex = new Vector2(j + 1, i);
-                            biggestHeightDifference = rightHeightDiff;
-                        }
                     }
 
                     float upHeightDiff = 0;
@@ -62,20 +64,14 @@ public class Erosionenerator : MonoBehaviour
                     {
                         upHeightDiff = currentHeight - heights[j, i + 1]; //up
                         if (upHeightDiff > _t && upHeightDiff >leftHeightDiff && upHeightDiff > leftHeightDiff)
-                        {
                             lowestIndex = new Vector2(j, i + 1);
-                            biggestHeightDifference = upHeightDiff;
-                        }
                     }
 
                     if (i != 0)
                     {
                         downHeightDiff = currentHeight - heights[j, i - 1]; //down
                         if (downHeightDiff > _t && downHeightDiff > leftHeightDiff && downHeightDiff > leftHeightDiff && downHeightDiff > upHeightDiff)
-                        {
                             lowestIndex = new Vector2(j, i - 1);
-                            biggestHeightDifference = downHeightDiff;
-                        }
                     }
 
                     if (lowestIndex.x == -1)
@@ -90,11 +86,15 @@ public class Erosionenerator : MonoBehaviour
             }
             heights = tempHeights;
         }
-        _noiseGenerator.Landscape.terrainData.SetHeights(0, 0, heights);
+        _landscape.terrainData.SetHeights(0, 0, heights);
     }
     private void HydraulicErosion()
     {
-        float[,] heights = _noiseGenerator.GetHeightValues();
+        if (_landscape == null)
+            _landscape = GetComponent<Terrain>();
+
+        ResetMaps();
+        float[,] heights = _landscape.terrainData.GetHeights(0, 0, _width, _height);
 
         for (int n = 0; n < _iterationsHydraulic; n++)
         {
@@ -268,29 +268,41 @@ public class Erosionenerator : MonoBehaviour
                 }
             }
         }
-        _noiseGenerator.Landscape.terrainData.SetHeights(0, 0, heights);
+        _landscape.terrainData.SetHeights(0, 0, heights);
     }
     public void ExecuteThermalErosion()
     {
+        if (_noiseGenerator == null)
+            _noiseGenerator = GetComponent<NoiseGenerator>();
+       _noiseGenerator.RegenerateTerrain();
 
-            _s.Start();
-            ThermalErosion();
-            _s.Stop();
+        _s.Start();
+        ThermalErosion();
+        _s.Stop();
 
         PrintTime();
     }
     public void ExecuteHudraulicErosion()
     {
+        if (_noiseGenerator == null)
+            _noiseGenerator = GetComponent<NoiseGenerator>();
 
-            _s.Start();
+        _noiseGenerator.RegenerateTerrain();
+
+        _s.Start();
             HydraulicErosion();
             _s.Stop();
 
          PrintTime();
     }
-    public void AllErosion()
+    public void ExecuteAllErosion()
     {
-             _s.Start();
+        if (_noiseGenerator == null)
+            _noiseGenerator = GetComponent<NoiseGenerator>();
+
+        _noiseGenerator.RegenerateTerrain();
+
+        _s.Start();
              ThermalErosion();
              HydraulicErosion();
             _s.Stop();
@@ -323,6 +335,9 @@ public class Erosionenerator : MonoBehaviour
     }
     void PrintTime()
     {
+        if (!_showTime)
+            return;
+
         TimeSpan ts = _s.Elapsed;
         string elapsedTime = String.Format("{0:00}:{1:00}",
             ts.Seconds,

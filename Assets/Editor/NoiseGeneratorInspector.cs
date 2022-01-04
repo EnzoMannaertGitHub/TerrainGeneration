@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(NoiseGenerator))]
+[CustomEditor(typeof(NoiseGenerator)), CanEditMultipleObjects]
 public class NoiseGeneratorInspector : Editor
 {
     private string _buttonText = "Switch to Diamond Square noise";
@@ -48,5 +48,8 @@ public class NoiseGeneratorInspector : Editor
         }
         if (EditorGUI.EndChangeCheck())
             generator.RegenerateTerrain();
+
+        EditorGUILayout.Toggle("Print execution time", generator._showTime);
+
     }
 }
