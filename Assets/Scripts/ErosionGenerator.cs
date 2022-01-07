@@ -11,6 +11,8 @@ public class ErosionGenerator : MonoBehaviour
     public int _iterationsHydraulic = 15;
     public float _t = .025f;
     public bool _showTime = true;
+    public bool _isDemo = false;
+    public float[,] _erosionHeights = new float[256, 256];
 
     private NoiseGenerator _noiseGenerator;
     private Terrain _landscape = new Terrain();
@@ -88,6 +90,8 @@ public class ErosionGenerator : MonoBehaviour
             }
             heights = tempHeights;
         }
+        _erosionHeights = heights;
+
         _landscape.terrainData.SetHeights(0, 0, heights);
     }
     private void HydraulicErosion()
@@ -276,7 +280,8 @@ public class ErosionGenerator : MonoBehaviour
     {
         if (_noiseGenerator == null)
             _noiseGenerator = GetComponent<NoiseGenerator>();
-       _noiseGenerator.RegenerateTerrain();
+        if (!_isDemo)
+            _noiseGenerator.RegenerateTerrain();
 
         _width = _noiseGenerator._width;
         _height = _noiseGenerator._height;
@@ -292,12 +297,14 @@ public class ErosionGenerator : MonoBehaviour
         if (_noiseGenerator == null)
             _noiseGenerator = GetComponent<NoiseGenerator>();
 
-        _noiseGenerator.RegenerateTerrain();
+        if (!_isDemo)
+            _noiseGenerator.RegenerateTerrain();
 
         _width = _noiseGenerator._width;
         _height = _noiseGenerator._height;
         _waterMap = new float[_width, _height];
         _sedimentMap = new float[_width, _height];
+        _erosionHeights = new float[_width, _height];
 
         _s.Start();
         HydraulicErosion();
@@ -316,6 +323,7 @@ public class ErosionGenerator : MonoBehaviour
         _height = _noiseGenerator._height;
         _waterMap = new float[_width, _height];
         _sedimentMap = new float[_width, _height];
+        _erosionHeights = new float[_width, _height];
 
         _s.Start();
              ThermalErosion();
@@ -367,5 +375,6 @@ public class ErosionGenerator : MonoBehaviour
     {
         _waterMap = new float[_width, _height];
         _sedimentMap = new float[_width, _height];
+        _erosionHeights = new float[_width, _height];
     }
 }

@@ -216,12 +216,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _width: 256
   _height: 256
-  _showTime: 1
+  _showTime: 0
   _shader: {fileID: 0}
-  _scale: 24.49
+  _scale: 24.96
   _offsetX: 48.8
   _offsetY: 82.9
-  _roughness: 1.339
+  _roughness: 1.449
   _topRightValue: 0.235
   _topLeftValue: 0.3303762
   _bottomRightValue: 0.006591558
@@ -238,10 +238,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0350e439204a3142968658a52c7f0a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _iterationsThermal: 100
-  _iterationsHydraulic: 10
-  _t: 0.025
-  _showTime: 1
+  _iterationsThermal: 110
+  _iterationsHydraulic: 0
+  _t: 0.015
+  _showTime: 0
+  _isDemo: 0
 --- !u!114 &75473790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +255,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca7b6a33e5bcec74d93d2841749837cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isdemo: 1
+  _waitSec: 0.05
+  _thermalIterations: 50
+  _hydraulicIterations: 10
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
