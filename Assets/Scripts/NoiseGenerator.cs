@@ -72,27 +72,6 @@ public class NoiseGenerator : MonoBehaviour
         terrainData.SetHeights(0, 0, heights);
         _s.Stop();
 
-        float maxHeight = float.MinValue;
-        float minHeight = float.MaxValue;
-        
-        foreach (float h in heights)
-        {
-            if (h > maxHeight)
-            {
-                maxHeight = h;
-            }
-        }
-        foreach (float h in heights)
-        {
-            if (h < minHeight)
-            {
-                minHeight = h;
-            }
-        }
-        _shader.SetFloat("Height", maxHeight);
-        _shader.SetFloat("MinHeight", minHeight);
-        _shader.SetFloat("Origin", _landscape.gameObject.transform.position.y);
-
         return terrainData;
     }
     float[,] Generateheights()
