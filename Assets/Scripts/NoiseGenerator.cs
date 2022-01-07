@@ -100,6 +100,7 @@ public class NoiseGenerator : MonoBehaviour
     }
     public float[,] GetHeightValues()
     {
+        _landscape = GetComponent<Terrain>();
         return _landscape.terrainData.GetHeights(0, 0, _width, _height);
     }
     #endregion
@@ -222,7 +223,6 @@ public class NoiseGenerator : MonoBehaviour
         }
     }
     #endregion
-
     void PrintTime()
     {
         if (!_showTime)
