@@ -8,6 +8,8 @@ public class NoiseGeneratorInspector : Editor
     private bool _isPerlin = true;
     public override void OnInspectorGUI()
     {
+        base.OnInspectorGUI();
+
         var generator = this.target as NoiseGenerator;
 
         if (GUILayout.Button(_buttonText))

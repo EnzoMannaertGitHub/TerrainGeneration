@@ -27,7 +27,7 @@ public class NoiseGenerator : MonoBehaviour
     public int _width;
     public int _height;
     public bool _showTime = true;
-
+    [SerializeField]private Material _shader;
     #region EDITORPARAMETERS
     [Header("PERLIN NOISE PARAMETERS")]
     public float _scale = 20f;
@@ -68,8 +68,30 @@ public class NoiseGenerator : MonoBehaviour
         
         terrainData.size = new Vector3(_width, 20, _height);
 
-        terrainData.SetHeights(0, 0, Generateheights());
+        float[,] heights = Generateheights();
+        terrainData.SetHeights(0, 0, heights);
         _s.Stop();
+
+        float maxHeight = float.MinValue;
+        float minHeight = float.MaxValue;
+        
+        foreach (float h in heights)
+        {
+            if (h > maxHeight)
+            {
+                maxHeight = h;
+            }
+        }
+        foreach (float h in heights)
+        {
+            if (h < minHeight)
+            {
+                minHeight = h;
+            }
+        }
+        _shader.SetFloat("Height", maxHeight);
+        _shader.SetFloat("MinHeight", minHeight);
+        _shader.SetFloat("Origin", _landscape.gameObject.transform.position.y);
 
         return terrainData;
     }
