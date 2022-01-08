@@ -14,6 +14,7 @@ public class NoiseGenerator : MonoBehaviour
     private NoiseFunction _usedNoise = NoiseFunction.PERLIN;
     public NoiseFunction UsedNoise
     {
+        get { return _usedNoise; }
         set {
             _usedNoise = value;
             _landscape.terrainData = GenerateTerrain(_landscape.terrainData);
@@ -23,6 +24,8 @@ public class NoiseGenerator : MonoBehaviour
 
     private Terrain _landscape = new Terrain(); 
     public Terrain Landscape { set { _landscape = value; } get { return _landscape; } }
+
+    public object NoiseFuntion { get; internal set; }
 
     public int _width;
     public int _height;
@@ -52,6 +55,7 @@ public class NoiseGenerator : MonoBehaviour
         _landscape = GetComponent<Terrain>();
         PrintTime();
     }
+
     #region TERRAINFUNCTIONS
     public void RegenerateTerrain()
     {

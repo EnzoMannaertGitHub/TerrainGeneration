@@ -24,6 +24,14 @@ public class ErosionGenerator : MonoBehaviour
     private float[,] _sedimentMap = new float[256, 256];
     List<float> heightsInvolved = new List<float>();
 
+    private bool _isDemoMapsReset = false;
+
+    public bool IsDemoMapsReset
+    {
+        get { return _isDemoMapsReset = false; }
+        set { _isDemoMapsReset = value; }
+    }
+
     private void ThermalErosion()
     {
         if (_landscape == null)
@@ -96,11 +104,10 @@ public class ErosionGenerator : MonoBehaviour
     }
     private void HydraulicErosion()
     {
-
         if (_landscape == null)
             _landscape = GetComponent<Terrain>();
 
-        ResetMaps();
+        //ResetMaps();
         float[,] heights = _landscape.terrainData.GetHeights(0, 0, _width, _height);
 
         for (int n = 0; n < _iterationsHydraulic; n++)
@@ -298,13 +305,21 @@ public class ErosionGenerator : MonoBehaviour
             _noiseGenerator = GetComponent<NoiseGenerator>();
 
         if (!_isDemo)
+        {
             _noiseGenerator.RegenerateTerrain();
+            ResetMaps();
+        }
+        else
+        {
+            if (!_isDemoMapsReset)
+            {
+                ResetMaps();
+                _isDemoMapsReset = true;
+            }
+        }
 
         _width = _noiseGenerator._width;
         _height = _noiseGenerator._height;
-        _waterMap = new float[_width, _height];
-        _sedimentMap = new float[_width, _height];
-        _erosionHeights = new float[_width, _height];
 
         _s.Start();
         HydraulicErosion();
@@ -370,7 +385,6 @@ public class ErosionGenerator : MonoBehaviour
         UnityEngine.Debug.Log($"It took " + elapsedTime);
         _s.Reset();
     }
-
     public void ResetMaps()
     {
         _waterMap = new float[_width, _height];
