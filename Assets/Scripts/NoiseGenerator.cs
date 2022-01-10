@@ -120,6 +120,9 @@ public class NoiseGenerator : MonoBehaviour
     #region DIAMONDSQUARE
     void DiamondSquare(float r)
     {
+        _w = _width + 1;
+        _h = _height + 1;
+        _noiseMap = new float[_w, _h];
         //Fixed values => I got good results with these
         _noiseMap[0, 0] = _bottomLeftValue;
         _noiseMap[0, _h - 1] = _topLeftValue;
