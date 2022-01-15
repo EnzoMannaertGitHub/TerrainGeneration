@@ -70,7 +70,7 @@ public class NoiseGenerator : MonoBehaviour
         _s.Start();
         terrainData.heightmapResolution = _width + 1;
         
-        terrainData.size = new Vector3(_width, 20, _height);
+        terrainData.size = new Vector3(_width, 80, _height);
 
         float[,] heights = Generateheights();
         terrainData.SetHeights(0, 0, heights);
@@ -113,8 +113,8 @@ public class NoiseGenerator : MonoBehaviour
     {
         float xCoord = (float)x / _width * _scale + _offsetX;
         float yCoord = (float)y / _height * _scale + _offsetY;
-
-        return Mathf.PerlinNoise(xCoord, yCoord);
+        float height = Mathf.PerlinNoise(xCoord, yCoord);
+        return height;
     }
     #endregion
     #region DIAMONDSQUARE
