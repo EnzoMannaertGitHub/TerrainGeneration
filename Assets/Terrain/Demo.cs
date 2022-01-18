@@ -37,8 +37,7 @@ public class Demo : MonoBehaviour
         _demoHeights = new float[_noiseGenerator._width, _noiseGenerator._height];
         _allHeights = new float[_noiseGenerator._width, _noiseGenerator._height];
 
-        _allHeights = _noiseGenerator.GetHeightValues();
-
+        _allHeights = _landscape.terrainData.GetHeights(0, 0, _noiseGenerator._width, _noiseGenerator._height);
         _landscape.terrainData.SetHeights(0, 0, zeroHeights);
 
         _erosionGenerator._iterationsThermal = 1;
@@ -52,7 +51,7 @@ public class Demo : MonoBehaviour
             HandleFinish();
             return;
         }
-        if (_currentNoiseIndex == 256)
+        if (_currentNoiseIndex == _noiseGenerator._width)
         {
             HandleErosion();
             return;
