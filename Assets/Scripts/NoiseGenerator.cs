@@ -29,6 +29,8 @@ public class NoiseGenerator : MonoBehaviour
 
     public int _width;
     public int _height;
+    public float _terrainHeight;
+    public int _diamondScale = 1;
     public bool _showTime = true;
     [SerializeField]private Material _shader;
     #region EDITORPARAMETERS
@@ -70,7 +72,7 @@ public class NoiseGenerator : MonoBehaviour
         _s.Start();
         terrainData.heightmapResolution = _width + 1;
         
-        terrainData.size = new Vector3(_width, 80, _height);
+        terrainData.size = new Vector3(_width, _terrainHeight, _height);
 
         float[,] heights = Generateheights();
         terrainData.SetHeights(0, 0, heights);
@@ -120,8 +122,8 @@ public class NoiseGenerator : MonoBehaviour
     #region DIAMONDSQUARE
     void DiamondSquare(float r)
     {
-        _w = _width + 1;
-        _h = _height + 1;
+        _w = _width * _diamondScale + 1;
+        _h = _height * _diamondScale + 1;
         _noiseMap = new float[_w, _h];
         //Fixed values => I got good results with these
         _noiseMap[0, 0] = _bottomLeftValue;
@@ -130,7 +132,7 @@ public class NoiseGenerator : MonoBehaviour
         _noiseMap[_w - 1,_h - 1] = _topRightValue;
 
         _r = r;
-        _step = _width;
+        _step = _w - 1;
 
         while (_step > 0)
         {

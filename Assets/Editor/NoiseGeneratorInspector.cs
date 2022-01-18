@@ -26,14 +26,16 @@ public class NoiseGeneratorInspector : Editor
         }
 
         EditorGUI.BeginChangeCheck();
+        generator._terrainHeight = EditorGUILayout.Slider("Terrain Height", generator._terrainHeight, 20, 100);
         if (_isPerlin)
         {
-            generator._scale = EditorGUILayout.Slider("Scale", generator._scale, 10, 30);
+            generator._scale = EditorGUILayout.Slider("Scale", generator._scale, 1, 30);
             generator._offsetX = EditorGUILayout.Slider("X offset", generator._offsetX, 0, 100);
             generator._offsetY = EditorGUILayout.Slider("Y offset", generator._offsetY, 0, 100);
         }
         else
         {
+            generator._diamondScale = EditorGUILayout.IntSlider("Scale", generator._diamondScale, 1, 4);
             generator._roughness = EditorGUILayout.Slider("Roughness", generator._roughness, 0, 2);
 
             var style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
