@@ -332,7 +332,7 @@ public class ErosionGenerator : MonoBehaviour
         if (_noiseGenerator == null)
             _noiseGenerator = GetComponent<NoiseGenerator>();
 
-        _noiseGenerator.RegenerateTerrain();
+        //_noiseGenerator.RegenerateTerrain();
 
         _width = _noiseGenerator._width;
         _height = _noiseGenerator._height;

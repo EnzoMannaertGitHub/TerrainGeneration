@@ -216,11 +216,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _width: 256
   _height: 256
-  _terrainHeight: 80.1
+  _terrainHeight: 79.9
   _diamondScale: 1
   _showTime: 0
   _shader: {fileID: 0}
-  _scale: 8.2
+  _scale: 9.1
   _offsetX: 44.5
   _offsetY: 82.9
   _roughness: 1.5
@@ -241,8 +241,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _iterationsThermal: 50
-  _iterationsHydraulic: 2
-  _t: 0.015
+  _iterationsHydraulic: 0
+  _t: 0.01
   _showTime: 0
   _isDemo: 0
 --- !u!114 &75473790
@@ -567,13 +567,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0.10844275, y: -0.4569063, z: 0.048196048, w: 0.88156337}
-  m_LocalPosition: {x: 378, y: 144, z: -34}
+  m_LocalRotation: {x: 0.10424718, y: -0.6567501, z: 0.11303141, w: 0.7382654}
+  m_LocalPosition: {x: 419.8, y: 172.2, z: 71.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 13.606, y: -54.894, z: -0.832}
+  m_LocalEulerAnglesHint: {x: 17.601, y: -83.033, z: 1.802}
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
